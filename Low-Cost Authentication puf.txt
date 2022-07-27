@@ -1,0 +1,51 @@
+a Low-Cost Authentication puf Using Vivado Tool.
+
+module mux2_1(out,a,b,s);
+output out;
+input a,b,s;
+assign out=(s)?b:a;
+endmodule
+
+module df(q,d,clk,reset);
+input d,clk,reset;
+output reg q;
+always @(posedge clk)
+if (reset == 1)
+   q<=0;
+else
+   q<=d;
+endmodule
+
+module puf(d,q,f,out,inp1,inp2,ctl1,ctl2,ctl3,ctl4);
+input inp1,inp2,d,q,f,ctl1,ctl2,ctl3,ctl4;
+output out;
+reg df;
+wire t1,t2,t3,t4,t5,t6,t7,t8;
+mux2_1 m1 (t1,inp1,inp2,ctl1);
+mux2_1 m2 (t2,inp2,inp1,ctl1);
+mux2_1 m3 (t3,t1,t2,ctl2);
+mux2_1 m4 (t4,t2,t1,ctl2);
+mux2_1 m5 (t5,t3,t4,ctl3);
+mux2_1 m6 (t6,t4,t3,ctl3);
+mux2_1 m7 (t7,t5,t6,ctl4);
+mux2_1 m8 (t8,t6,t5,ctl4);
+always @(posedge t8)
+begin 
+df<=t7;
+end
+assign out=df;
+endmodule
+
+module tb();
+reg d,q,f,inp1,inp2,ctl1,ctl2,ctl3,ctl4;
+wire out;
+puf dut(d,q,f,out,inp1,inp2,ctl1,ctl2,ctl3,ctl4);
+initial 
+begin
+inp1=1;inp2=0;
+#10 inp1=3;inp2=2,ctl1;
+#10 inp1=4;inp2=3;
+#10 $finish;
+end
+endmodule
+
